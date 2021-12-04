@@ -115,12 +115,10 @@ public class Collector extends Base {
         try (PrintWriter out = new PrintWriter(bw)) {
             for (int i = 0; i < getListOfPlayers().size(); i++) {
                 openPlayerFromList(getListOfPlayers().get(i));
-                System.out.println(getClubName() + ", " + getPlayerName());
-                out.print(getClubName() + ", " + getPlayerName());
+                out.print(getClubName() + "," + getPlayerName());
                 List<WebElement> allBorders = getDriver().findElements(Locators.playerBorders);
                 for (WebElement singleBorder : allBorders) {
-                    out.print(", " + singleBorder.getText());
-                    System.out.println(", " + singleBorder.getText());
+                    out.print("," + singleBorder.getText());
                 }
                 out.print('\n');
                 expandPlayerDropdownList();
