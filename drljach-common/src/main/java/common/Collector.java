@@ -3,11 +3,9 @@ package common;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Collector extends Base {
@@ -38,13 +36,40 @@ public class Collector extends Base {
         return this;
     }
 
-    public String getPlayerAndClubNames() {
-        return getDriver().findElement(Locators.playerAndClubNames).getText();
+    public String getClubName() throws IOException {
+        String clubNameAndPlayerName = getDriver().findElement(Locators.playerAndClubNames).getText();
+
+        int minus = clubNameAndPlayerName.indexOf("-") + 2;
+        String clubName = clubNameAndPlayerName.substring(minus);
+
+        BufferedReader reader = new BufferedReader(new FileReader(
+                "/Users/milos/QA/drljach/drljach-common/src/main/resources/nba.txt"));
+
+        HashMap<String, String> map = new HashMap<>();
+        while (true) {
+            String line = reader.readLine();
+            if (line == null) {
+                break;
+            }
+            String[] parts = line.split(",");
+            for (int i = 1; i < parts.length; i++) {
+                map.put(parts[1], parts[0]);
+            }
+        }
+        reader.close();
+        return map.get(clubName);
     }
 
-    public String getMatchStartDateAndTime() {
-        return getDriver().findElement(Locators.matchStartDateAndTime).getText();
+    public String getPlayerName() {
+        String playerName = getDriver().findElement(Locators.playerAndClubNames).getText();
+        String[] t1 = playerName.split(" ");
+        String s = t1[0];
+        return s;
     }
+
+    /*public String getMatchStartDateAndTime() {
+        return getDriver().findElement(Locators.matchStartDateAndTime).getText();
+    }*/
 
     public Collector firstPlayerInList() throws InterruptedException {
         Thread.sleep(2000);
@@ -53,7 +78,7 @@ public class Collector extends Base {
         return this;
     }
 
-    public Collector expandPlayerDropdownList(){
+    public Collector expandPlayerDropdownList() {
         WebElement arrow = getDriver().findElement(Locators.arrowNextToPlayer);
         arrow.click();
         return this;
@@ -70,7 +95,7 @@ public class Collector extends Base {
     }
 
     public Collector openPlayerFromList(String playerAndClubNames) throws InterruptedException {
-        WebElement player = getDriver().findElement(By.xpath("//div[@class='special-dropdown-item-match ng-binding'][text()='"+playerAndClubNames+"']"));
+        WebElement player = getDriver().findElement(By.xpath("//div[@class='special-dropdown-item-match ng-binding'][text()='" + playerAndClubNames + "']"));
         player.click();
         Thread.sleep(700);
         return this;
@@ -80,8 +105,6 @@ public class Collector extends Base {
         String fileLocation = FileName.PLAYERS();
         FileWriter fw = new FileWriter(fileLocation, true);
         BufferedWriter bw = new BufferedWriter(fw);
-        PrintWriter out = new PrintWriter(bw);
-
         acceptCookies();
         kladjenje();
         kosarkaSpecijal();
@@ -89,21 +112,20 @@ public class Collector extends Base {
         firstPlayerInList();
         expandPlayerDropdownList();
         getListOfPlayers();
-
-        for (int i = 0; i < getListOfPlayers().size(); i++){
-            openPlayerFromList(getListOfPlayers().get(i));
-            out.print(getPlayerAndClubNames() + ", " + getMatchStartDateAndTime());
-            List<WebElement> allBorders = getDriver().findElements(Locators.playerBorders);
-            for (WebElement singleBorder : allBorders) {
-                out.print(", " + singleBorder.getText());
-                out.println("");
+        try (PrintWriter out = new PrintWriter(bw)) {
+            for (int i = 0; i < getListOfPlayers().size(); i++) {
+                openPlayerFromList(getListOfPlayers().get(i));
+                System.out.println(getClubName() + ", " + getPlayerName());
+                out.print(getClubName() + ", " + getPlayerName());
+                List<WebElement> allBorders = getDriver().findElements(Locators.playerBorders);
+                for (WebElement singleBorder : allBorders) {
+                    out.print(", " + singleBorder.getText());
+                    System.out.println(", " + singleBorder.getText());
+                }
+                out.print('\n');
+                expandPlayerDropdownList();
             }
-            out.close();
-            expandPlayerDropdownList();
         }
-
         return this;
     }
-
-
 }

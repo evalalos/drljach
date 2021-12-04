@@ -17,7 +17,6 @@ public class CollectorTest extends Base {
 
     @Test
     public void collector() throws IOException, InterruptedException {
-
         Collector collector = new Collector();
         collector.collect();
     }
