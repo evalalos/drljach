@@ -40,7 +40,7 @@ public class Base {
             driver.manage().window().maximize();
         }
 
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
     public void openUrl(String url) {

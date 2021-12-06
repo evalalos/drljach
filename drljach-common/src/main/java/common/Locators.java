@@ -14,4 +14,7 @@ public class Locators {
     public static final By firstPlayerInList = By.xpath("//div[@class='home-game home-game-match-row ng-scope odd-row'][1]//match//div[@class='cc-w-teams tooltips row match-tooltip']//div[@class='txt-left ng-binding']");
     public static final By arrowNextToPlayer = By.xpath("//span[@class='special-dropdown-matches-arrow arrow-down-img']");
     public static final By playersInDropdownList = By.xpath("//div[@class='special-dropdown-item-match ng-binding']");
+    public static final By assist = By.xpath("//div[@id='home-container']//div[@class='no-print ng-scope']//div[@class='special-table-game ng-scope'][contains(.,'Asistencije I')]");
+    public static final By points = By.xpath("//div[@id='home-container']//div[@class='no-print ng-scope']//div[@class='special-table-game ng-scope'][contains(.,'Poeni I')]");
+    public static final By rebounds = By.xpath("//div[@class='special-table-game ng-scope'][contains(.,'Skokovi Igraca')][not(contains(.,'Poeni'))][not(contains(.,'Asistencije'))]");
 }
