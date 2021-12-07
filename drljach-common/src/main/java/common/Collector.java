@@ -1,55 +1,65 @@
 package common;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 public class Collector extends Base {
 
+    List<String> listOfAvailablePlayers = new ArrayList<>();
+    Map<String, String> mapOfPlayersAndClubs = new LinkedHashMap<>();
+    Map<String, String> mapWithAllBorders = new LinkedHashMap<>();
+    List<String> points = new ArrayList<>();
+    List<String> assists = new ArrayList<>();
+    List<String> rebounds = new ArrayList<>();
+
     private Collector acceptCookies() throws InterruptedException {
-        Thread.sleep(3000);
+        Thread.sleep(2000);
         WebElement locator = getDriver().findElement(Locators.acceptCookies);
         locator.click();
         return this;
     }
 
-    public Collector kladjenje() throws InterruptedException {
-        Thread.sleep(3000);
+    private Collector kladjenje() throws InterruptedException {
+        Thread.sleep(2000);
         WebElement locator = getDriver().findElement(Locators.kladjenje);
         locator.click();
         return this;
     }
 
-    public Collector kosarkaSpecijal() throws InterruptedException {
-        Thread.sleep(3000);
+    private Collector kosarkaSpecijal() throws InterruptedException {
+        Thread.sleep(2000);
         WebElement locator = getDriver().findElement(Locators.kosarkaSpecijal);
         locator.click();
         return this;
     }
 
-    public Collector igraciUsaNba() throws InterruptedException {
-        Thread.sleep(3000);
+    private Collector igraciUsaNba() throws InterruptedException {
+        Thread.sleep(2000);
         WebElement locator = getDriver().findElement(Locators.igraciUsaNba);
         locator.click();
         return this;
     }
 
-    public String getClubName() throws IOException {
-        String clubNameAndPlayerName = getDriver().findElement(Locators.playerAndClubNames).getText();
-        int minus = clubNameAndPlayerName.indexOf("-") + 2;
-        String clubName = clubNameAndPlayerName.substring(minus);
+    public void scroll(String playerAndClubNames) throws InterruptedException {
+        WebElement element = getDriver().findElement(By.xpath("//div[@class='special-dropdown-item-match ng-binding'][text()='" + playerAndClubNames + "']"));
+        ((JavascriptExecutor) getDriver()).executeScript("arguments[0].scrollIntoView(true);", element);
+        Thread.sleep(500);
+    }
+
+    private List<String> getListOfAvailablePlayers() {
+        List<WebElement> allPlayers = getDriver().findElements(Locators.players);
+        for (WebElement allPlayer : allPlayers) {
+            String playerName = allPlayer.getText();
+            listOfAvailablePlayers.add(playerName);
+        }
+        return listOfAvailablePlayers;
+    }
+
+    private Map<String, String> convertClubNames() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(
                 "/Users/milos/QA/drljach/drljach-common/src/main/resources/nba.txt"));
         HashMap<String, String> map = new HashMap<>();
@@ -64,123 +74,87 @@ public class Collector extends Base {
             }
         }
         reader.close();
-        return map.get(clubName);
+        return map;
     }
 
-    public String getPlayerName() {
-        String playerName = getDriver().findElement(Locators.playerAndClubNames).getText();
-        String[] t1 = playerName.split(" ");
-        String s = t1[0];
-        return s;
+    private Map<String, String> getPlayerAndClubName() throws IOException {
+        for (String playerAndClubName : listOfAvailablePlayers) {
+            String[] splitPlayerName = playerAndClubName.split("\\s+");
+            String playerName = splitPlayerName[0].trim();
+            String[] splitClubName = playerAndClubName.split("-");
+            String clubName = splitClubName[1].trim();
+            mapOfPlayersAndClubs.put(playerName, convertClubNames().get(clubName));
+        }
+        return mapOfPlayersAndClubs;
     }
 
-    /*public String getMatchStartDateAndTime() {
-        return getDriver().findElement(Locators.matchStartDateAndTime).getText();
-    }*/
-
-    public Collector firstPlayerInList() throws InterruptedException {
-        Thread.sleep(500);
-        WebElement locator = getDriver().findElement(Locators.firstPlayerInList);
-        locator.click();
+    public Collector igre() throws InterruptedException {
+        Thread.sleep(1500);
+        WebElement igre = getDriver().findElement(Locators.igre);
+        igre.click();
         return this;
     }
 
-    public Collector expandPlayerDropdownList() throws InterruptedException {
-        Thread.sleep(500);
-        WebElement locator = getDriver().findElement(Locators.arrowNextToPlayer);
-        locator.click();
+    public Collector poeniIgraca() throws InterruptedException {
+        Thread.sleep(1500);
+        WebElement poeniIgraca = getDriver().findElement(Locators.poeniIgraca);
+        poeniIgraca.click();
         return this;
     }
 
-    public List<String> getListOfPlayers() {
-        List<WebElement> allPlayers = getDriver().findElements(Locators.playersInDropdownList);
-        List<String> playerAndClubNames = new ArrayList<>();
-        for (WebElement allPlayer : allPlayers) {
-            String playerName = allPlayer.getText();
-            playerAndClubNames.add(playerName);
-        }
-        return playerAndClubNames;
-    }
-
-    public Collector openPlayerFromList(String playerAndClubNames) throws InterruptedException {
-        Thread.sleep(2000);
-        WebElement player = getDriver().findElement(By.xpath("//div[@class='special-dropdown-item-match ng-binding'][text()='" + playerAndClubNames + "']"));
-        player.click();
-        Thread.sleep(700);
+    public Collector asistencijeIgraca() throws InterruptedException {
+        Thread.sleep(1500);
+        WebElement asistencijeIgraca = getDriver().findElement(Locators.asistencijeIgraca);
+        asistencijeIgraca.click();
         return this;
     }
 
-    public boolean isElementVisible(By locator) {
-        WebDriverWait wait = new WebDriverWait(getDriver(), 4);
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-            return true;
-        } catch (TimeoutException te) {
-            return false;
+    public Collector skokoviIgraca() throws InterruptedException {
+        Thread.sleep(1500);
+        WebElement skokoviIgraca = getDriver().findElement(Locators.skokoviIgraca);
+        skokoviIgraca.click();
+        return this;
+    }
+
+    public List<String> getAllPoints() {
+        List<WebElement> allPoints = getDriver().findElements(Locators.borders);
+        for (WebElement p : allPoints) {
+            String po = p.getText();
+            points.add(po);
         }
+        return points;
     }
 
-    public String getPoints() {
-        List<String> matchList;
-        if (isElementVisible(Locators.points)) {
-            WebElement points = getDriver().findElement(Locators.points);
-            String ass = points.getText();
-            matchList = new ArrayList<>();
-            Pattern regex = Pattern.compile("\\((.*?)\\)");
-            Matcher regexMatcher = regex.matcher(ass);
-            while (regexMatcher.find()) {
-                matchList.add(regexMatcher.group(1));
-            }
-        } else {
-            matchList = Collections.singletonList("");
+    public List<String> getAllAssists() {
+        List<WebElement> allAssists = getDriver().findElements(Locators.borders);
+        for (WebElement a : allAssists) {
+            String as = a.getText();
+            assists.add(as);
         }
-        String numberToParse = String.valueOf(matchList);
-        return StringUtils.substringBetween(numberToParse, "[", "]");
+        return assists;
     }
 
-    public String getAssist() {
-        List<String> matchList;
-        if (isElementVisible(Locators.assist)) {
-            WebElement assist = getDriver().findElement(Locators.assist);
-            String ass = assist.getText();
-            matchList = new ArrayList<>();
-            Pattern regex = Pattern.compile("\\((.*?)\\)");
-            Matcher regexMatcher = regex.matcher(ass);
-            while (regexMatcher.find()) {
-                matchList.add(regexMatcher.group(1));
-            }
-        } else {
-            matchList = Collections.singletonList("");
+    public List<String> getAllRebounds() {
+        List<WebElement> allRebounds = getDriver().findElements(Locators.borders);
+        for (WebElement r : allRebounds) {
+            String re = r.getText();
+            rebounds.add(re);
         }
-        String numberToParse = String.valueOf(matchList);
-        return StringUtils.substringBetween(numberToParse, "[", "]");
+        return rebounds;
     }
 
-    public String getRebounds() {
-        List<String> matchList;
-        if (isElementVisible(Locators.rebounds)) {
-            WebElement rebounds = getDriver().findElement(Locators.rebounds);
-            String ass = rebounds.getText();
-            matchList = new ArrayList<>();
-            Pattern regex = Pattern.compile("\\((.*?)\\)");
-            Matcher regexMatcher = regex.matcher(ass);
-            while (regexMatcher.find()) {
-                matchList.add(regexMatcher.group(1));
-            }
-        } else {
-            matchList = Collections.singletonList("");
+    public Map<String, String> collectAllBorders() {
+        for (int i = 0; i < mapOfPlayersAndClubs.size(); i++) {
+            String playerPoints = points.get(i);
+            String playerAssists = assists.get(i);
+            String playerRebounds = rebounds.get(i);
+            mapWithAllBorders.put(mapOfPlayersAndClubs.values().toArray()[i] + "," +
+                    mapOfPlayersAndClubs.keySet().toArray()[i], "," + playerPoints + "," + playerAssists + "," + playerRebounds);
         }
-        String numberToParse = String.valueOf(matchList);
-        return StringUtils.substringBetween(numberToParse, "[", "]");
+        return mapWithAllBorders;
     }
 
-    public void scroll(By locator) throws InterruptedException {
-        WebElement element = getDriver().findElement(locator);
-        ((JavascriptExecutor) getDriver()).executeScript("arguments[0].scrollIntoView(true);", element);
-        Thread.sleep(500);
-    }
-
-    public Collector collect() throws InterruptedException, IOException {
+    public Collector collect() throws IOException, InterruptedException {
         String fileLocation = FileName.PLAYERS();
         FileWriter fw = new FileWriter(fileLocation, true);
         BufferedWriter bw = new BufferedWriter(fw);
@@ -188,18 +162,24 @@ public class Collector extends Base {
         kladjenje();
         kosarkaSpecijal();
         igraciUsaNba();
-        firstPlayerInList();
-        expandPlayerDropdownList();
-        getListOfPlayers();
+        igre();
+        poeniIgraca();
+        getListOfAvailablePlayers();
+        getPlayerAndClubName();
+        getAllPoints();
+        igre();
+        asistencijeIgraca();
+        getAllAssists();
+        igre();
+        skokoviIgraca();
+        getAllRebounds();
+        collectAllBorders();
         try (PrintWriter out = new PrintWriter(bw)) {
-            for (int i = 0; i < getListOfPlayers().size(); i++) {
-                openPlayerFromList(getListOfPlayers().get(i));
-                out.print(getClubName() + "," + getPlayerName() + ",");
-                out.print(getPoints() + ",");
-                out.print(getAssist() + ",");
-                out.print(getRebounds());
+            for (int i = 0; i < mapWithAllBorders.size(); i++) {
+                String o1 = mapWithAllBorders.keySet().toArray()[i].toString();
+                String o = mapWithAllBorders.values().toArray()[i].toString();
+                out.print(o1 + o);
                 out.print('\n');
-                expandPlayerDropdownList();
             }
         }
         return this;

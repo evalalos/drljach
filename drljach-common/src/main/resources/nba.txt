@@ -11,7 +11,7 @@ GSW,Golden State Warriors
 HOU,Houston Rockets
 IND,Indiana Pacers
 LAC,L.A.Clippers
-LAL,L.A.Lakers
+LAL,Los Angeles Lakers
 MEM,Memphis Grizzlies
 MIA,Miami Heat
 MIL,Milwaukee Bucks
